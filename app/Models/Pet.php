@@ -183,6 +183,7 @@ class Pet extends Model
 
     public function reset(): void
     {
+        $this->age = 0;
         $this->health = 100;
         $this->energy = 100;
         $this->cleanliness = 100;
