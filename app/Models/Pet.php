@@ -20,6 +20,7 @@ class Pet extends Model
         'hunger',
         'is_alive',
         'last_tick_at',
+        'type',
     ];
 
     protected $casts = [

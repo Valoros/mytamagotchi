@@ -27,6 +27,45 @@
             text-align: center;
         }
 
+        .layout {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .main {
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .pet-item {
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            background: #f3f4f6;
+            text-decoration: none;
+            display: block;
+            color: #111827;
+            font-weight: bold;
+        }
+
+        .pet-item:hover {
+            background: #e5e7eb;
+        }
+
+        .pet-active {
+            background: #111827;
+            color: white;
+        }
+
         .stat {
             margin-bottom: 15px;
         }
@@ -106,141 +145,164 @@
         }
     </style>
 </head>
-<body>
+<body style="margin:0;font-family:Arial,sans-serif;background:#f4f6f9;padding:40px;">
 
-<div class="card">
+<div class="layout" style="display:flex;gap:30px;align-items:flex-start;max-width:1000px;margin:0 auto;">
 
-    {{-- Имя питомца --}}
-    <h1>{{ $pet->name }}</h1>
+    <!-- MAIN -->
+    <div class="main" style="flex:1;">
 
-    {{-- Статусы --}}
-    <div class="stat">
-        <div class="stat-label">
-            <span>Health</span>
-            <span>{{ $pet->health }}</span>
-        </div>
-        <div class="progress">
-            <div class="progress-bar health" style="width: {{ $pet->health }}%"></div>
+        <div class="card">
+
+            @if(session('success'))
+                <div style="background:#d1fae5;color:#065f46;padding:10px;
+                            border-radius:8px;margin-bottom:15px;text-align:center;">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <h1>
+                @if($pet->type === 'cat') 🐱 @endif
+                @if($pet->type === 'dog') 🐶 @endif
+                @if($pet->type === 'rabbit') 🐰 @endif
+                {{ $pet->name }}
+            </h1>
+
+            <!-- СТАТЫ -->
+            @foreach([
+                'Health' => ['value' => $pet->health, 'class' => 'health'],
+                'Energy' => ['value' => $pet->energy, 'class' => 'energy'],
+                'Hunger' => ['value' => $pet->hunger, 'class' => 'hunger'],
+                'Cleanliness' => ['value' => $pet->cleanliness, 'class' => 'clean'],
+                'Happiness' => ['value' => $pet->happiness, 'class' => 'happy'],
+            ] as $label => $stat)
+
+                <div class="stat">
+                    <div class="stat-label">
+                        <span>{{ $label }}</span>
+                        <span>{{ $stat['value'] }}</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar {{ $stat['class'] }}"
+                             style="width: {{ $stat['value'] }}%"></div>
+                    </div>
+                </div>
+
+            @endforeach
+
+            @php
+                if ($pet->age < 3) {
+                    $stage = '👶 Baby';
+                    $stageColor = '#10b981';
+                } elseif ($pet->age < 7) {
+                    $stage = '🧑 Adult';
+                    $stageColor = '#3b82f6';
+                } else {
+                    $stage = '👴 Old';
+                    $stageColor = '#ef4444';
+                }
+            @endphp
+
+            <div class="age-box">
+                🎂 {{ $pet->age }} days old
+                <span class="age-stage" style="color: {{ $stageColor }}">
+                    {{ $stage }}
+                </span>
+            </div>
+
+            @if($pet->is_alive)
+                <div class="actions">
+
+                    <form method="POST" action="{{ route('pets.action', [$pet, 'feed']) }}">
+                        @csrf
+                        <button type="submit">🍖 Feed</button>
+                    </form>
+
+                    <form method="POST" action="{{ route('pets.action', [$pet, 'sleep']) }}">
+                        @csrf
+                        <button type="submit">😴 Sleep</button>
+                    </form>
+
+                    <form method="POST" action="{{ route('pets.action', [$pet, 'play']) }}">
+                        @csrf
+                        <button type="submit">🎮 Play</button>
+                    </form>
+
+                    <form method="POST" action="{{ route('pets.action', [$pet, 'wash']) }}">
+                        @csrf
+                        <button type="submit">🧼 Wash</button>
+                    </form>
+
+                </div>
+
+                <div style="margin:20px 0;border-top:1px solid #e5e7eb;"></div>
+                <div class="actions">
+
+                    <form method="POST" action="{{ route('pets.sendInfo', $pet) }}">
+                        @csrf
+                        <button type="submit">📧 Отправить на почту</button>
+                    </form>
+
+                    <form method="POST" action="{{ route('pets.fastForward', $pet) }}">
+                        @csrf
+                        <button type="submit">⏩ Промотать 10 дней</button>
+                    </form>
+
+                </div>
+            @endif
+
+            <div class="status">
+                @if($pet->is_alive)
+                    <span class="alive">🟢 Alive</span>
+                @else
+                    <span class="dead">🔴 Dead</span>
+                @endif
+            </div>
+
+            @if($pet->last_event)
+                <div class="age-box"
+                     style="margin-top:15px;background:#fef3c7;color:#b45309;">
+                    {{ $pet->last_event }}
+                </div>
+            @endif
+
         </div>
     </div>
 
-    <div class="stat">
-        <div class="stat-label">
-            <span>Energy</span>
-            <span>{{ $pet->energy }}</span>
-        </div>
-        <div class="progress">
-            <div class="progress-bar energy" style="width: {{ $pet->energy }}%"></div>
-        </div>
+    <!-- SIDEBAR -->
+    <div class="sidebar"
+         style="width:250px;background:white;padding:20px;
+                border-radius:16px;
+                box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+
+        <h3>🐾 Ваши питомцы</h3>
+
+        @foreach($pets as $listPet)
+            <a href="{{ route('pets.show', $listPet) }}"
+               style="display:block;padding:10px;border-radius:10px;
+                      margin-bottom:10px;text-decoration:none;
+                      font-weight:bold;
+                      background: {{ $listPet->id === $pet->id ? '#111827' : '#f3f4f6' }};
+                      color: {{ $listPet->id === $pet->id ? 'white' : '#111827' }};">
+
+                {{ $listPet->name }}
+                <br>
+                <small>
+                    {{ $listPet->is_alive ? '🟢 Alive' : '🔴 Dead' }}
+                </small>
+            </a>
+        @endforeach
+
+        <a href="{{ route('pets.create') }}"
+           style="display:block;margin-top:15px;
+                  padding:10px;border-radius:10px;
+                  background:#111827;color:white;
+                  text-align:center;text-decoration:none;font-weight:bold;">
+            ➕ Новый питомец
+        </a>
+
     </div>
 
-    <div class="stat">
-        <div class="stat-label">
-            <span>Hunger</span>
-            <span>{{ $pet->hunger }}</span>
-        </div>
-        <div class="progress">
-            <div class="progress-bar hunger" style="width: {{ $pet->hunger }}%"></div>
-        </div>
-    </div>
-
-    <div class="stat">
-        <div class="stat-label">
-            <span>Cleanliness</span>
-            <span>{{ $pet->cleanliness }}</span>
-        </div>
-        <div class="progress">
-            <div class="progress-bar clean" style="width: {{ $pet->cleanliness }}%"></div>
-        </div>
-    </div>
-
-    <div class="stat">
-        <div class="stat-label">
-            <span>Happiness</span>
-            <span>{{ $pet->happiness }}</span>
-        </div>
-        <div class="progress">
-            <div class="progress-bar happy" style="width: {{ $pet->happiness }}%"></div>
-        </div>
-    </div>
-
-    {{-- Возраст и стадия жизни --}}
-    @php
-        if ($pet->age < 3) {
-            $stage = '👶 Baby';
-            $stageColor = '#10b981';
-        } elseif ($pet->age < 7) {
-            $stage = '🧑 Adult';
-            $stageColor = '#3b82f6';
-        } else {
-            $stage = '👴 Old';
-            $stageColor = '#ef4444';
-        }
-    @endphp
-
-    <div class="age-box">
-        🎂 {{ $pet->age }} days old
-        <span class="age-stage" style="color: {{ $stageColor }}">{{ $stage }}</span>
-    </div>
-
-    {{-- Действия --}}
-    @if($pet->is_alive)
-        <div class="actions">
-            <form method="POST" action="{{ route('pets.action', [$pet, 'feed']) }}">
-                @csrf
-                <button type="submit">🍖 Feed</button>
-            </form>
-
-            <form method="POST" action="{{ route('pets.action', [$pet, 'sleep']) }}">
-                @csrf
-                <button type="submit">😴 Sleep</button>
-            </form>
-
-            <form method="POST" action="{{ route('pets.action', [$pet, 'play']) }}">
-                @csrf
-                <button type="submit">🎮 Play</button>
-            </form>
-
-            <form method="POST" action="{{ route('pets.action', [$pet, 'wash']) }}">
-                @csrf
-                <button type="submit">🧼 Wash</button>
-            </form>
-
-            <form method="POST" action="{{ route('pets.sendInfo', $pet) }}">
-                @csrf
-                <button type="submit">📧 Отправить на почту</button>
-            </form>
-        </div>
-    @endif
-
-    {{-- Статус --}}
-    <div class="status">
-        @if($pet->is_alive)
-            <span class="alive">🟢 Alive</span>
-        @else
-            <span class="dead">🔴 Dead</span>
-            <form method="POST" action="{{ route('pets.action', [$pet, 'reset']) }}">
-                @csrf
-                <button type="submit">🔄 Reset</button>
-            </form>
-        @endif
-    </div>
-
-    @if($pet->last_event)
-        <div class="age-box" style="margin-top: 15px; background: #fef3c7; color: #b45309;">
-            {{ $pet->last_event }}
-        </div>
-    @endif
-
-    @if($pet->is_alive)
-        <div class="actions">
-            <!-- Другие кнопки -->
-            <form method="POST" action="{{ route('pets.fastForward', $pet) }}">
-                @csrf
-                <button type="submit">⏩ Промотать 10 дней</button>
-            </form>
-        </div>
-    @endif
 </div>
 
 </body>
