@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pet;
+use App\Mail\PetInfoMail;
+use Illuminate\Support\Facades\Mail;
 
 class PetController extends Controller
 {
@@ -32,4 +34,11 @@ class PetController extends Controller
         
         return back()->with('message', 'Время промотано на 10 дней!');
     }   
+
+    public function sendInfo(Pet $pet)
+    {
+        Mail::to('vladislavorlov752@gmail.com')->send(new PetInfoMail($pet));
+    
+        return back()->with('success', 'Письмо отправлено!');
+    }
 }

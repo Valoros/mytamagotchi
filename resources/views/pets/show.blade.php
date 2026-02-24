@@ -205,6 +205,11 @@
                 @csrf
                 <button type="submit">🧼 Wash</button>
             </form>
+
+            <form method="POST" action="{{ route('pets.sendInfo', $pet) }}">
+                @csrf
+                <button type="submit">📧 Отправить на почту</button>
+            </form>
         </div>
     @endif
 
