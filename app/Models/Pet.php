@@ -202,18 +202,18 @@ class Pet extends Model
         $chance = rand(1, 100);
     
         // Пример событий при разных действиях
-        if ($action === 'feed' && $chance <= 10) {
+        if ($action === 'feed' && $chance <= 20) {
             $this->cleanliness -= 10; // испачкалась
             $this->happiness -= 5;
             $this->last_event = "🤦‍♂️ Ваш питомец перевернул миску и испачкался!";
-        } elseif ($action === 'play' && $chance <= 10) {
+        } elseif ($action === 'play' && $chance <= 20) {
             $this->health -= 5; // слегка поранился
             $this->last_event = "😢 Ваш питомец ударился во время игры!";
-        } elseif ($action === 'wash' && $chance <= 10) {
+        } elseif ($action === 'wash' && $chance <= 20) {
             $this->happiness -= 10;
             $this->health -= 5;
             $this->last_event = "😿 Ваш питомец поскользнулся и упал!";
-        } elseif ($action === 'sleep' && $chance <= 10) {
+        } elseif ($action === 'sleep' && $chance <= 20) {
             $this->energy += 5;
             $this->happiness += 10;
             $this->last_event = "😇 Питомцу приснился хороший сон!";
