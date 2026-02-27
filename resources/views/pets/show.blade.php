@@ -237,7 +237,7 @@
 
                 <div style="margin:20px 0;border-top:1px solid #e5e7eb;"></div>
                 <div class="actions">
-
+                    
                     <form method="POST" action="{{ route('pets.sendInfo', $pet) }}">
                         @csrf
                         <button type="submit">📧 Отправить на почту</button>
