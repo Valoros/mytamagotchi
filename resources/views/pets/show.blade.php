@@ -255,7 +255,11 @@
                 @if($pet->is_alive)
                     <span class="alive">🟢 Alive</span>
                 @else
-                    <span class="dead">🔴 Dead</span>
+                    <span class="dead">🔴 Ой кажется ваш {{ $pet->name}} сдох</span>
+                    <form method="POST" action="{{ route('pets.action', [$pet, 'reset']) }}">
+                        @csrf
+                        <button type="submit">⏩ Ресет</button>
+                    </form>
                 @endif
             </div>
 

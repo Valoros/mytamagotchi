@@ -70,8 +70,7 @@ class PetResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+            ->bulkActions([onGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

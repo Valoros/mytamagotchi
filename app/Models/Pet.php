@@ -49,7 +49,7 @@ class Pet extends Model
             return;
         }
     
-        $minutes = min($minutes, 60);
+        $minutes = min($minutes, 10);
     
         // Питомец голодает
         $this->hunger -= 2 * $minutes;
@@ -58,7 +58,7 @@ class Pet extends Model
         $this->energy -= 1 * $minutes;
     
         // Старение: каждый 10 минут = 1 день
-        $daysToAdd = intdiv($minutes, 10);
+        $daysToAdd = intdiv($minutes, 60);
         if ($daysToAdd > 0) {
             $this->age += $daysToAdd;
         }
@@ -151,7 +151,7 @@ class Pet extends Model
         $this->energy -= 20;
         $this->hunger -= 15;
         $this->cleanliness -= 10;
-        $this->health -= 5;
+        $this->health -= 12;
 
         $this->clampState();
         $this->checkState();
@@ -167,7 +167,7 @@ class Pet extends Model
         $this->energy -= 15;
         $this->happiness += 5;
         $this->hunger -= 10;
-
+        
         $this->clampState();
         $this->checkState();
         $this->save();
@@ -176,9 +176,16 @@ class Pet extends Model
 
     public function checkState(): void
     {
+        if ($this->hunger <= 0) {
+            $this->health -= 35;
+        }
+    
         if ($this->health <= 0) {
             $this->health = 0;
             $this->is_alive = false;
+        }
+        else {
+            $this->is_alive = true;
         }
     }
 
@@ -193,6 +200,7 @@ class Pet extends Model
         $this->is_alive = true;
         $this->last_tick_at = now();
 
+        $this->checkState();
         $this->save();
     }
 
@@ -205,23 +213,23 @@ class Pet extends Model
         if ($action === 'feed' && $chance <= 20) {
             $this->cleanliness -= 10; // испачкалась
             $this->happiness -= 5;
-            $this->last_event = "🤦‍♂️ Ваш питомец перевернул миску и испачкался!";
+            $this->last_event = "🤦‍♂️ {$this->name} перевернул миску и испачкался!";
         } elseif ($action === 'play' && $chance <= 20) {
             $this->health -= 5; // слегка поранился
-            $this->last_event = "😢 Ваш питомец ударился во время игры!";
+            $this->last_event = "😢 {$this->name} ударился во время игры!";
         } elseif ($action === 'wash' && $chance <= 20) {
             $this->happiness -= 10;
             $this->health -= 5;
-            $this->last_event = "😿 Ваш питомец поскользнулся и упал!";
+            $this->last_event = "😿 {$this->name} поскользнулся и упал!";
         } elseif ($action === 'sleep' && $chance <= 20) {
             $this->energy += 5;
             $this->happiness += 10;
-            $this->last_event = "😇 Питомцу приснился хороший сон!";
+            $this->last_event = "😇 {$this->name} приснился хороший сон!";
         } else {
             $this->last_event = null; // ничего не произошло
         }
-    
         $this->clampState();
         $this->save();
     }
+
 }
